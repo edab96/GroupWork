@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script src="./js/functions.js"></script>
+    <script>
+        var myStorage = window.localStorage;
+        var usersDatabase = [
+            {
+                username: 'username',
+                password: 'password',
+
+            },
+            {
+
+            },
+        ]
+
+        function loginUser() {
+
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var loginSuccessful = false;
+
+            for (i = 0; i < usersDatabase.length; i++) {
+                if (usersDatabase[i].username == username && usersDatabase[i].password == password) {
+                    alert('User logged in');
+                    loginSuccessful = true;
+                    myStorage.setItem('user', username);
+                    location = 'home.html';
+                }
+            
+            }
+
+            if (loginSuccessful !== true) {
+                alert('Invalid login credentials. Try again!');
+            }
+
+        }
+
+    </script>
+</head>
+
+
+
+<body>
+    <div class="main">
+        <div class="login-wrapper">
+            <input type="text" name="username" id="username" />
+            <input type="password" name="password" id="password" />
+            <input type="submit" name="submit" id="submit-login" value="Login" onclick="loginUser();" />
+        </div>
+    </div>
+</body>
+
+
+</html>

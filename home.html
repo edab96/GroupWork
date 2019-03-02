@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+    <script>
+        var myStorage = window.localStorage;
+
+        function isUserLoggedIn() {
+            if (myStorage.getItem('user') !== null) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        
+    </script>
+</head>
+
+
+<body>
+    <div class="header">
+        <div class="nav-bar-wrapper">
+            <ul class="nav-bar nav-left">
+                <li class="nav-bar-item active">
+                    <a href="">Home</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">My workplaces</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">My restaurants</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">Jobs</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">Notifications</a>
+                </li>
+
+            </ul>
+            <ul class="nav-bar nav-right">
+                <li class="nav-bar-item" id="profile-nav">
+                    <a href="">Profile</a>
+                </li>
+                <li class="nav-bar-item" id="login-nav">
+                    <a href="login.html">Login</a>
+                </li>
+            </ul>
+        </div>
+        <div class="header-wall"><!--<img src="./resources/images/header.jpg" style="width:100%;"/>--></div>
+    </div>
+
+    <div class="main"></div>
+
+    <div class="footer"></div>
+</body>
+</html>
+
+
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+    }
+    .nav-bar-wrapper {
+        width: 100%;
+        background-color: #243b7d;
+        display: inline-flex;
+    }
+    .nav-bar {
+        display: inline-block;
+        margin: 0 auto;
+    }
+
+    .nav-bar.nav-left, .nav-bar.nav-right {
+        display: inline-block;
+    }
+    .nav-bar.nav-left {
+        float:left;
+    }
+    .nav-bar.nav-left {
+        float:right;
+    }
+
+    li.nav-bar-item {
+        display: inline-block;
+        padding: 10px;
+        color: #050585;
+        transition: 0.5s ease all;
+    }
+    li.nav-bar-item.active {
+        background-color:#3355a0
+
+    }
+    li.nav-bar-item:hover {
+        background: #39394a;
+    }
+    li.nav-bar-item > a {
+        text-decoration: none;
+        color: #fff;
+    }
+
+    li.nav-bar-item > a:hover {
+        text-decoration: none;
+        color: #fff!important;
+    }
+</style>

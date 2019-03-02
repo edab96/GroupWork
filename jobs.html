@@ -1,0 +1,301 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+    <script>
+        var jobs = [{
+            locationName: "Some cafe", //Name of the restaurant
+            locationType: "Cafe", //Whether Restaurant, Fast-food, Cafe,
+            position: "Bartender", //Name of the open position
+            type: "Full-Time", //Either Full-Time or Part-Time
+            address: "Howitzvej", //Street name
+            civic: "60", //Civic number
+            city: "Frederiksberg",
+            zip: "2000",
+            creationDate: "Fri Mar 01 2019 16:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
+            startingDate: "Mon Apr 01 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
+            image: "", //Optional, url image for the modal
+            fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
+        },
+        {
+            locationName: "Some Restaurant", //Name of the restaurant
+            locationType: "Restaurant", //Whether Restaurant, Fast-food, Cafe,
+            position: "Cook", //Name of the open position
+            type: "Part-Time", //Either Full-Time or Part-Time
+            address: "Howitzvej", //Street name
+            civic: "602", //Civic number
+            city: "Frederiksberg2",
+            zip: "2000",
+            creationDate: "Fri Mar 01 2019 10:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
+            startingDate: "Tue Apr 02 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
+            image: "", //Optional, url image for the modal
+            fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
+        },
+            ,
+        {
+            locationName: "Kbh Donald's", //Name of the restaurant
+            locationType: "Fast-Food", //Whether Restaurant, Fast-food, Cafe,
+            position: "Cook", //Name of the open position
+            type: "Part-Time", //Either Full-Time or Part-Time
+            address: "Fasanvej", //Street name
+            civic: "1", //Civic number
+            city: "Frederiksberg",
+            zip: "2000",
+            creationDate: "Thu Mar 14 2019 10:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
+            startingDate: "0", //Javascript Date object. It is the date of job start
+            image: "", //Optional, url image for the modal
+            fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
+        }];
+
+        function populateJobsList() {
+            jobs.forEach(function (listedJob) {
+                console.log(listedJob);
+                appendToJobListing(listedJob);
+            });
+        }
+
+        function appendToJobListing(jobToAppend) {
+            htmlJob = `<div class="job-listing-wrapper">` +
+                `<h2 class="job-listing-header" >${jobToAppend.locationName}</h2 >` +
+                `<p class="job-listing-info">${jobToAppend.position}, ${jobToAppend.type}.</p>` +
+                `<p class="job-listing-date">Posted on: ${jobToAppend.creationDate}.</p>` +
+                `<p class="job-listing-start" >${jobToAppend.startingDate}.</p >` +
+                `</div >`;
+            document.getElementById("job-list-container").insertAdjacentHTML('afterbegin', htmlJob);
+        }
+
+        function clearJobList() {
+            document.getElementById('job-list-container').innerHTML = "";
+        }
+
+        function sortJobsDesc() {
+            jobs.sort(function (a, b) {
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return new Date(b.creationDate) - new Date(a.creationDate);
+            });
+            console.log(jobs);
+            clearJobList();
+            populateJobsList();
+        }
+
+        function sortJobsAsc() {
+            jobs.sort(function (a, b) {
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return new Date(a.creationDate) - new Date(b.creationDate);
+            });
+            console.log(jobs);
+            clearJobList();
+            populateJobsList();
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            //alert("Page has been loaded");
+            populateJobsList();
+            
+        });
+
+        
+    </script>
+
+</head>
+
+
+<body>
+    <div class="header">
+        <div class="nav-bar-wrapper">
+            <ul class="nav-bar nav-left">
+                <li class="nav-bar-item">
+                    <a href="">Home</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">My workplaces</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">My restaurants</a>
+                </li>
+                <li class="nav-bar-item active">
+                    <a href="">Jobs</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">Notifications</a>
+                </li>
+
+            </ul>
+            <ul class="nav-bar nav-right">
+                <li class="nav-bar-item" id="profile-nav">
+                    <a href="">Profile</a>
+                </li>
+                <li class="nav-bar-item" id="login-nav">
+                    <a href="login.html">Login</a>
+                </li>
+            </ul>
+        </div>
+        <div class="header-wall"><!--<img src="./resources/images/header.jpg" style="width:100%;"/>--></div>
+    </div>
+
+    <div class="main">
+        <div class="jobs-filter-bar">
+            <div class="option-selector" id="date-option-selector">
+                <span class="option-label" id="sort-by-date">Latest first<span class="option-label-dropdown"></span></span> 
+                <ul class="suboption-list" id="suboption-date">
+                    <li onclick="sortJobsDesc();">Latest first</li>
+                    <li onclick="sortJobsAsc();">Oldest first</li>
+                </ul>
+            </div>
+        </div>
+        <div class="jobs-list" id="job-list-container">
+
+        </div>
+    </div>
+
+    <div class="footer"></div>
+</body>
+</html>
+
+
+
+
+<style>
+
+    body {
+        font-family: 'Open Sans', sans-serif;
+    }
+    .main {
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+    li {
+        padding: 5px 10px;
+    }
+    .nav-bar-wrapper {
+        width: 100%;
+        background-color: #243b7d;
+        display: inline-flex;
+    }
+
+    .nav-bar {
+        display: inline-block;
+        margin: 0 auto;
+    }
+
+        .nav-bar.nav-left, .nav-bar.nav-right {
+            display: inline-block;
+        }
+
+        .nav-bar.nav-left {
+            float: left;
+        }
+
+        .nav-bar.nav-left {
+            float: right;
+        }
+
+    li.nav-bar-item {
+        display: inline-block;
+        padding: 10px;
+        color: #050585;
+        transition: 0.5s ease all;
+    }
+
+        li.nav-bar-item.active {
+            background-color: #3355a0
+        }
+
+        li.nav-bar-item:hover {
+            background: #39394a;
+        }
+
+        li.nav-bar-item > a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+            li.nav-bar-item > a:hover {
+                text-decoration: none;
+                color: #fff !important;
+            }
+
+    /*
+        Jobs matching page syle
+    */
+    .jobs-filter-bar {
+        margin: 50px 0;
+        text-align: right;
+    }
+    .job-listing-wrapper {
+        padding: 20px;
+        border: 1px solid #b8b8b8;
+        border-radius: 2px;
+        margin: 20px;
+    }
+
+    .jobs-list {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .option-selector {
+        position: relative;
+        max-width: 200px;
+        text-align: right;
+        cursor: pointer;
+    }
+    .option-label-dropdown {
+        margin-left: 40px;
+    }
+    .option-label-dropdown:before {
+        content: "";
+        position: absolute;
+        right: 10px;
+        top: 8px;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid #100e90;
+    }
+
+    .option-label-dropdown:after {
+        content: "";
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid #fff;
+        padding: 0;
+    }
+    .suboption-list {
+        display: none;
+        position: absolute;
+        top: -3000px;
+        right: 20px;
+        margin: 0;
+        list-style: none;
+        top: 0;
+        background: white;
+        border: 1px solid #c5c5c5;
+        padding: 0;
+    }
+    .suboption-list:hover {
+        display: block;
+        top: 0;
+    }
+    .option-label:hover + ul {
+        display: block;
+        top: 0;
+    }
+    #suboption-date > li:hover {
+        background-color: #e2e2e2;
+    }
+</style>
+
