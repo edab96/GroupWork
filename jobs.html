@@ -5,8 +5,15 @@
     <meta charset="utf-8" />
     <title></title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
 
     <script>
+        var displayOptions = {
+            date: "latest", //latest(default), oldest
+            type: "All", //Any(default), Full-Time, Part-Time
+            };
+
+
         var jobs = [{
             locationName: "Some cafe", //Name of the restaurant
             locationType: "Cafe", //Whether Restaurant, Fast-food, Cafe,
@@ -35,9 +42,9 @@
             image: "", //Optional, url image for the modal
             fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
         },
-            ,
+            
         {
-            locationName: "Kbh Donald's", //Name of the restaurant
+            locationName: "Some Fast-Food", //Name of the restaurant
             locationType: "Fast-Food", //Whether Restaurant, Fast-food, Cafe,
             position: "Cook", //Name of the open position
             type: "Part-Time", //Either Full-Time or Part-Time
@@ -52,18 +59,39 @@
         }];
 
         function populateJobsList() {
-            jobs.forEach(function (listedJob) {
-                console.log(listedJob);
-                appendToJobListing(listedJob);
+            jobs.forEach(function (dbJob) {
+                console.log(displayOptions.type + " " + dbJob.type);
+
+                if (displayOptions.type == 'All') { 
+                    console.log("Display selction is:" + displayOptions.type);
+                    appendToJobListing(dbJob);
+                }
+                else if (displayOptions.type == dbJob.type) {
+                    console.log("Display selction is:" + displayOptions.type + "and listed job type is: " + dbJob.type)
+                    appendToJobListing(dbJob);
+                }
             });
         }
 
         function appendToJobListing(jobToAppend) {
-            htmlJob = `<div class="job-listing-wrapper">` +
+            var dateDisplayptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            announcementDate = new Date(jobToAppend.creationDate).toLocaleDateString("en-US", dateDisplayptions);
+
+            var startingDate = new Date(jobToAppend.startingDate);
+            var now = new Date();
+
+            if (startingDate.getTime() < now.getTime()) {
+                startingDate = 'As soon as possible';
+            }
+            else {
+                startingDate = startingDate.toLocaleDateString("en-US", dateDisplayptions);
+            }
+            
+            htmlJob = `<div class="job-listing-wrapper" data-job-type="${jobToAppend.type}">` +
                 `<h2 class="job-listing-header" >${jobToAppend.locationName}</h2 >` +
                 `<p class="job-listing-info">${jobToAppend.position}, ${jobToAppend.type}.</p>` +
-                `<p class="job-listing-date">Posted on: ${jobToAppend.creationDate}.</p>` +
-                `<p class="job-listing-start" >${jobToAppend.startingDate}.</p >` +
+                `<p class="job-listing-date">Posted on: ${announcementDate}.</p>` +
+                `<p class="job-listing-start" >Job start: ${startingDate}.</p >` +
                 `</div >`;
             document.getElementById("job-list-container").insertAdjacentHTML('afterbegin', htmlJob);
         }
@@ -72,7 +100,8 @@
             document.getElementById('job-list-container').innerHTML = "";
         }
 
-        function sortJobsDesc() {
+        function sortJobsAsc() {
+            document.getElementById('active-sorting-date').innerHTML = 'Oldest first';
             jobs.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
@@ -83,7 +112,8 @@
             populateJobsList();
         }
 
-        function sortJobsAsc() {
+        function sortJobsDesc() {
+            document.getElementById('active-sorting-date').innerHTML = 'Latest first';
             jobs.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
@@ -94,14 +124,41 @@
             populateJobsList();
         }
 
+        function hideJobs() {
+            document.getElementById('job-list-container').innerHTML = '';
+        }
+
+        
+        function showFullTimeOnly() {
+            document.getElementById('active-sorting-job-type').innerHTML = 'Full-Time';
+            hideJobs();
+
+            displayOptions.type = 'Full-Time';
+            populateJobsList();
+        }
+
+
+        function showPartTimeOnly() {
+            document.getElementById('active-sorting-job-type').innerHTML = 'Part-Time';
+            hideJobs();
+            displayOptions.type = 'Part-Time';
+            populateJobsList();
+        }
+
+        function showAnyJobType() {
+            document.getElementById('active-sorting-job-type').innerHTML = 'All';
+            hideJobs();
+            displayOptions.type = 'All';
+            populateJobsList();
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             //alert("Page has been loaded");
-            populateJobsList();
-            
+            sortJobsDesc();
+
         });
 
-        
+
     </script>
 
 </head>
@@ -112,7 +169,7 @@
         <div class="nav-bar-wrapper">
             <ul class="nav-bar nav-left">
                 <li class="nav-bar-item">
-                    <a href="">Home</a>
+                    <a href="home.html">Home</a>
                 </li>
                 <li class="nav-bar-item">
                     <a href="">My workplaces</a>
@@ -142,13 +199,25 @@
 
     <div class="main">
         <div class="jobs-filter-bar">
+            <!-- Date dropdown filter-->
             <div class="option-selector" id="date-option-selector">
-                <span class="option-label" id="sort-by-date">Latest first<span class="option-label-dropdown"></span></span> 
+                <span class="option-label" id="sort-by-date"><span id="active-sorting-date">Latest first</span><span class="option-label-dropdown"></span></span>
                 <ul class="suboption-list" id="suboption-date">
                     <li onclick="sortJobsDesc();">Latest first</li>
                     <li onclick="sortJobsAsc();">Oldest first</li>
                 </ul>
             </div>
+            <!-- End of date dropdown filter-->
+            <!-- Job type dropdown filter-->
+            <div class="option-selector" id="type-option-selector">
+                <span class="option-label" id="sort-by-type"><span id="active-sorting-job-type">All</span><span class="option-label-dropdown"></span></span>
+                <ul class="suboption-list" id="suboption-type">
+                    <li onclick="showAnyJobType();">All</li>
+                    <li onclick="showFullTimeOnly();">Full-Time</li>
+                    <li onclick="showPartTimeOnly();">Part-Time</li>
+                </ul>
+            </div>
+            <!-- End of job type dropdown filter-->
         </div>
         <div class="jobs-list" id="job-list-container">
 
@@ -159,143 +228,4 @@
 </body>
 </html>
 
-
-
-
-<style>
-
-    body {
-        font-family: 'Open Sans', sans-serif;
-    }
-    .main {
-        max-width: 1280px;
-        margin: 0 auto;
-    }
-    li {
-        padding: 5px 10px;
-    }
-    .nav-bar-wrapper {
-        width: 100%;
-        background-color: #243b7d;
-        display: inline-flex;
-    }
-
-    .nav-bar {
-        display: inline-block;
-        margin: 0 auto;
-    }
-
-        .nav-bar.nav-left, .nav-bar.nav-right {
-            display: inline-block;
-        }
-
-        .nav-bar.nav-left {
-            float: left;
-        }
-
-        .nav-bar.nav-left {
-            float: right;
-        }
-
-    li.nav-bar-item {
-        display: inline-block;
-        padding: 10px;
-        color: #050585;
-        transition: 0.5s ease all;
-    }
-
-        li.nav-bar-item.active {
-            background-color: #3355a0
-        }
-
-        li.nav-bar-item:hover {
-            background: #39394a;
-        }
-
-        li.nav-bar-item > a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-            li.nav-bar-item > a:hover {
-                text-decoration: none;
-                color: #fff !important;
-            }
-
-    /*
-        Jobs matching page syle
-    */
-    .jobs-filter-bar {
-        margin: 50px 0;
-        text-align: right;
-    }
-    .job-listing-wrapper {
-        padding: 20px;
-        border: 1px solid #b8b8b8;
-        border-radius: 2px;
-        margin: 20px;
-    }
-
-    .jobs-list {
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    .option-selector {
-        position: relative;
-        max-width: 200px;
-        text-align: right;
-        cursor: pointer;
-    }
-    .option-label-dropdown {
-        margin-left: 40px;
-    }
-    .option-label-dropdown:before {
-        content: "";
-        position: absolute;
-        right: 10px;
-        top: 8px;
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 10px solid #100e90;
-    }
-
-    .option-label-dropdown:after {
-        content: "";
-        position: absolute;
-        right: 10px;
-        top: 5px;
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 10px solid #fff;
-        padding: 0;
-    }
-    .suboption-list {
-        display: none;
-        position: absolute;
-        top: -3000px;
-        right: 20px;
-        margin: 0;
-        list-style: none;
-        top: 0;
-        background: white;
-        border: 1px solid #c5c5c5;
-        padding: 0;
-    }
-    .suboption-list:hover {
-        display: block;
-        top: 0;
-    }
-    .option-label:hover + ul {
-        display: block;
-        top: 0;
-    }
-    #suboption-date > li:hover {
-        background-color: #e2e2e2;
-    }
-</style>
 

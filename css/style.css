@@ -1,0 +1,146 @@
+﻿body {
+font-family: 'Open Sans', sans-serif;
+}
+
+.main {
+max-width: 1280px;
+margin: 0 auto;
+}
+
+li {
+padding: 5px 10px;
+}
+
+.nav-bar-wrapper {
+width: 100%;
+background-color: #243b7d;
+display: inline-flex;
+}
+
+.nav-bar {
+display: inline-block;
+margin: 0 auto;
+}
+
+.nav-bar.nav-left, .nav-bar.nav-right {
+    display: inline-block;
+}
+
+.nav-bar.nav-left {
+    float: left;
+}
+
+.nav-bar.nav-left {
+    float: right;
+}
+
+li.nav-bar-item {
+display: inline-block;
+padding: 10px;
+color: #050585;
+transition: 0.5s ease all;
+}
+
+li.nav-bar-item.active {
+    background-color: #3355a0
+}
+
+li.nav-bar-item:hover {
+    background: #39394a;
+}
+
+li.nav-bar-item > a {
+    text-decoration: none;
+    color: #fff;
+}
+
+    li.nav-bar-item > a:hover {
+        text-decoration: none;
+        color: #fff !important;
+    }
+
+/*
+    Jobs matching page syle
+*/
+.jobs-filter-bar {
+margin: 50px 0;
+text-align: right;
+}
+
+.job-listing-wrapper {
+padding: 20px;
+border: 1px solid #b8b8b8;
+border-radius: 2px;
+margin: 20px;
+}
+
+.jobs-list {
+width: 100%;
+max-width: 500px;
+margin: 0 auto;
+}
+
+.option-selector {
+    position: relative;
+    max-width: 200px;
+    min-width: 150px;
+    text-align: right;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.option-label-dropdown {
+margin-left: 40px;
+}
+
+.option-label-dropdown:before {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #100e90;
+}
+
+.option-label-dropdown:after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #fff;
+    padding: 0;
+}
+
+.suboption-list {
+display: none;
+position: absolute;
+top: -3000px;
+right: 20px;
+margin: 0;
+list-style: none;
+top: 0;
+background: white;
+border: 1px solid #c5c5c5;
+padding: 0;
+}
+
+.suboption-list:hover {
+    display: block;
+    top: 0;
+}
+
+.option-label:hover + ul {
+display: block;
+top: 0;
+}
+
+.suboption-list > li:hover {
+    background-color: #e2e2e2;
+}
