@@ -61,7 +61,7 @@ function verifySession() {
         document.getElementById('profile-nav').style.display = 'block';
         document.getElementById('login-nav').style.display = 'none';
         console.log(`Currently logged in as: ${loggedUser}`);
-        console.log('Local storage: ' + localStorage.getItem('user' + ' Session storage: ' + sessionStorage.getItem('user');));
+        console.log('Local storage: ' + localStorage.getItem('user' + ' Session storage: ' + sessionStorage.getItem('user')));
     }
     else {
         document.getElementById('profile-nav').style.display = 'none';
