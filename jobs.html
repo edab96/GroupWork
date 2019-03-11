@@ -6,21 +6,21 @@
     <title></title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link href="./css/style.css" rel="stylesheet">
+    <script src="./js/functions.js"></script>
+    <script src="./js/db.js"></script>
 
     <script>
-        var displayOptions = {
-            date: "latest", //latest(default), oldest
-            type: "All", //Any(default), Full-Time, Part-Time
-            };
+        
 
 
         var jobs = [{
+            id: 10202303, //Unique ID
             locationName: "Some cafe", //Name of the restaurant
             locationType: "Cafe", //Whether Restaurant, Fast-food, Cafe,
             position: "Bartender", //Name of the open position
             type: "Full-Time", //Either Full-Time or Part-Time
             address: "Howitzvej", //Street name
-            civic: "60", //Civic number
+            houseNumber: 60, //Civic number
             city: "Frederiksberg",
             zip: "2000",
             creationDate: "Fri Mar 01 2019 16:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
@@ -42,7 +42,7 @@
             image: "", //Optional, url image for the modal
             fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
         },
-            
+
         {
             locationName: "Some Fast-Food", //Name of the restaurant
             locationType: "Fast-Food", //Whether Restaurant, Fast-food, Cafe,
@@ -60,14 +60,14 @@
 
         function populateJobsList() {
             jobs.forEach(function (dbJob) {
-                console.log(displayOptions.type + " " + dbJob.type);
+                console.log(jobDisplayOptions.type + " " + dbJob.type);
 
-                if (displayOptions.type == 'All') { 
-                    console.log("Display selction is:" + displayOptions.type);
+                if (jobDisplayOptions.type == 'All') {
+                    console.log("Display selction is:" + jobDisplayOptions.type);
                     appendToJobListing(dbJob);
                 }
-                else if (displayOptions.type == dbJob.type) {
-                    console.log("Display selction is:" + displayOptions.type + "and listed job type is: " + dbJob.type)
+                else if (jobDisplayOptions.type == dbJob.type) {
+                    console.log("Display selction is:" + jobDisplayOptions.type + "and listed job type is: " + dbJob.type)
                     appendToJobListing(dbJob);
                 }
             });
@@ -86,7 +86,7 @@
             else {
                 startingDate = startingDate.toLocaleDateString("en-US", dateDisplayptions);
             }
-            
+
             htmlJob = `<div class="job-listing-wrapper" data-job-type="${jobToAppend.type}">` +
                 `<h2 class="job-listing-header" >${jobToAppend.locationName}</h2 >` +
                 `<p class="job-listing-info">${jobToAppend.position}, ${jobToAppend.type}.</p>` +
@@ -128,12 +128,12 @@
             document.getElementById('job-list-container').innerHTML = '';
         }
 
-        
+
         function showFullTimeOnly() {
             document.getElementById('active-sorting-job-type').innerHTML = 'Full-Time';
             hideJobs();
 
-            displayOptions.type = 'Full-Time';
+            jobDisplayOptions.type = 'Full-Time';
             populateJobsList();
         }
 
@@ -141,14 +141,14 @@
         function showPartTimeOnly() {
             document.getElementById('active-sorting-job-type').innerHTML = 'Part-Time';
             hideJobs();
-            displayOptions.type = 'Part-Time';
+            jobDisplayOptions.type = 'Part-Time';
             populateJobsList();
         }
 
         function showAnyJobType() {
             document.getElementById('active-sorting-job-type').innerHTML = 'All';
             hideJobs();
-            displayOptions.type = 'All';
+            jobDisplayOptions.type = 'All';
             populateJobsList();
         }
 
@@ -178,7 +178,7 @@
                     <a href="">My restaurants</a>
                 </li>
                 <li class="nav-bar-item active">
-                    <a href="">Jobs</a>
+                    <a href="jobs.html">Jobs</a>
                 </li>
                 <li class="nav-bar-item">
                     <a href="">Notifications</a>

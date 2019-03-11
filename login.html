@@ -3,54 +3,90 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
-
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
     <script src="./js/functions.js"></script>
+    <script src="./js/db.js"></script>
+
+ 
     <script>
-        var myStorage = window.localStorage;
-        var usersDatabase = [
-            {
-                username: 'username',
-                password: 'password',
-
-            },
-            {
-
-            },
-        ]
-
-        function loginUser() {
-
-            var username = document.getElementById('username').value;
-            var password = document.getElementById('password').value;
-            var loginSuccessful = false;
-
-            for (i = 0; i < usersDatabase.length; i++) {
-                if (usersDatabase[i].username == username && usersDatabase[i].password == password) {
-                    alert('User logged in');
-                    loginSuccessful = true;
-                    myStorage.setItem('user', username);
-                    location = 'home.html';
-                }
-            
+        function isUserLoggedIn() {
+            if (sessionStorage.getItem('user') !== null) {
+                loggedUser = sessionStorage.getItem('user');
+                return true;
             }
-
-            if (loginSuccessful !== true) {
-                alert('Invalid login credentials. Try again!');
+            else if (localStorage.getItem('user') !== null) {
+                loggedUser = localStorage.getItem('user');
             }
-
+            else {
+                return false;
+            }
         }
 
+
+        function verifySession() {
+            if (isUserLoggedIn()) {
+                document.getElementById('profile-nav').style.display = 'block';
+                document.getElementById('login-nav').style.display = 'none';
+                console.log(`Currently logged in as: ${loggedUser}`);
+                console.log('Local storage: ' + localStorage.getItem('user'));
+            }
+            else {
+                document.getElementById('profile-nav').style.display = 'none';
+                document.getElementById('login-nav').style.display = 'block';
+
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            //alert("Page has been loaded");
+            verifySession();
+
+        });
     </script>
 </head>
 
 
 
 <body>
+    <div class="header">
+        <div class="nav-bar-wrapper">
+            <ul class="nav-bar nav-left">
+                <li class="nav-bar-item active">
+                    <a href="">Home</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">My workplaces</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">My restaurants</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="jobs.html">Jobs</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">Notifications</a>
+                </li>
+
+            </ul>
+            <ul class="nav-bar nav-right">
+                <li class="nav-bar-item" id="profile-nav">
+                    <a href="">Profile</a>
+                </li>
+                <li class="nav-bar-item" id="login-nav">
+                    <a href="login.html">Login</a>
+                </li>
+            </ul>
+        </div>
+        <div class="header-wall"><!--<img src="./resources/images/header.jpg" style="width:100%;"/>--></div>
+    </div>
+
     <div class="main">
         <div class="login-wrapper">
             <input type="text" name="username" id="username" />
             <input type="password" name="password" id="password" />
+            <input type="checkbox" name="rememberLogin" value="rememberLogin" id="stayLogged">Remember Me<br>
             <input type="submit" name="submit" id="submit-login" value="Login" onclick="loginUser();" />
         </div>
     </div>
