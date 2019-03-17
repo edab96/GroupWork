@@ -59,7 +59,7 @@
         }];
 
         function populateJobsList() {
-            jobs.forEach(function (dbJob) {
+            jobsDatabase.forEach(function (dbJob) {
                 console.log(jobDisplayOptions.type + " " + dbJob.type);
 
                 if (jobDisplayOptions.type == 'All') {
@@ -92,7 +92,7 @@
                 `<p class="job-listing-info">${jobToAppend.position}, ${jobToAppend.type}.</p>` +
                 `<p class="job-listing-date">Posted on: ${announcementDate}.</p>` +
                 `<p class="job-listing-start" >Job start: ${startingDate}.</p >` +
-                `</div >`;
+                `<button onclick="openJobModal('${jobToAppend.position} wanted at ${jobToAppend.locationName}', '${jobToAppend.fullDescription}', '${jobToAppend.address}', '${jobToAppend.streetNumber}', '${jobToAppend.zip}');">View more</button></div >`;
             document.getElementById("job-list-container").insertAdjacentHTML('afterbegin', htmlJob);
         }
 
@@ -102,24 +102,24 @@
 
         function sortJobsAsc() {
             document.getElementById('active-sorting-date').innerHTML = 'Oldest first';
-            jobs.sort(function (a, b) {
+            jobsDatabase.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
                 return new Date(b.creationDate) - new Date(a.creationDate);
             });
-            console.log(jobs);
+            console.log(jobsDatabase);
             clearJobList();
             populateJobsList();
         }
 
         function sortJobsDesc() {
             document.getElementById('active-sorting-date').innerHTML = 'Latest first';
-            jobs.sort(function (a, b) {
+            jobsDatabase.sort(function (a, b) {
                 // Turn your strings into dates, and then subtract them
                 // to get a value that is either negative, positive, or zero.
                 return new Date(a.creationDate) - new Date(b.creationDate);
             });
-            console.log(jobs);
+            console.log(jobsDatabase);
             clearJobList();
             populateJobsList();
         }
@@ -155,7 +155,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             //alert("Page has been loaded");
             sortJobsDesc();
-
         });
 
 
@@ -166,37 +165,75 @@
 
 <body>
     <div class="header">
+        <!--Menu HTML-->
         <div class="nav-bar-wrapper">
             <ul class="nav-bar nav-left">
                 <li class="nav-bar-item">
                     <a href="home.html">Home</a>
                 </li>
                 <li class="nav-bar-item">
-                    <a href="">My workplaces</a>
-                </li>
-                <li class="nav-bar-item">
-                    <a href="">My restaurants</a>
+                    <a href="" id="my-restaurants-nav">My restaurants</a>
                 </li>
                 <li class="nav-bar-item active">
                     <a href="jobs.html">Jobs</a>
                 </li>
-                <li class="nav-bar-item">
-                    <a href="">Notifications</a>
+                <li class="nav-bar-item" id="notifications-trigger">
+                    <a>
+                        Notifications
+                        <div class="notifications-nav">
+                            <span class="notifications-label" id="notifications-counter" style=""></span>
+                        </div>
+                    </a>
+
+                        <div class="notifications-modal hidden" id="notifications-panel">
+                            <h3>New</h3>
+                            <ul>
+                                <li class="listed-notification unseen"></li>
+                            </ul>
+                            <h3>Read</h3>
+                            <ul>
+                                <li class="listed-notification seen"></li>
+                            </ul>
+                        </div>
                 </li>
 
             </ul>
             <ul class="nav-bar nav-right">
                 <li class="nav-bar-item" id="profile-nav">
-                    <a href="">Profile</a>
+                    <a href="profile.html">Profile</a>
                 </li>
                 <li class="nav-bar-item" id="login-nav">
                     <a href="login.html">Login</a>
                 </li>
             </ul>
         </div>
-        <div class="header-wall"><!--<img src="./resources/images/header.jpg" style="width:100%;"/>--></div>
+
+        <!--Menu HTML end-->
     </div>
 
+    <!--The following code is the pop up modal. By default, it is hidden-->
+    <div id="jobs-modal" onclick="closeJobModal();">
+        <div id="job-expanded" onclick="event.stopPropagation()">
+            <h2 id="modal-job-title">TITLE</h2>
+            <p id="modal-description">DESCRIPTION</p>
+
+            <div class="mapouter" style="">
+                <div class="gmap_canvas">
+                <iframe width="600" height="300" id="gmap_canvas" style="overflow: hidden;background: none !important; height: 300px;width: 600px;" src="https://maps.google.com/maps?q=frederikskaj%202p&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+                </iframe>
+                </div>
+            </div>
+            <div id="modal-button-wrapper" style="margin:0 auto; text-align: center;">
+                <div class="button-div close-button" id="modal-close" onclick="closeJobModal();">Close</div>
+                <div class="button-div confirm-button" id="modal-apply">Apply Now</div>
+                <div class="button-div redirect-button" id="modal-login-redirect" onclick="window.location.replace('login.html');">Login to apply</div>
+            </div>
+        </div>
+        <div></div>
+    </div>
+    <!-- End of the modal HTML-->
+
+    <!--Main content of the web page-->
     <div class="main">
         <div class="jobs-filter-bar">
             <!-- Date dropdown filter-->

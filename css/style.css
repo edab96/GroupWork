@@ -1,5 +1,13 @@
 ﻿body {
-font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
+    width: 100%;
+    min-height: 100%;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 .main {
@@ -35,10 +43,11 @@ margin: 0 auto;
 }
 
 li.nav-bar-item {
-display: inline-block;
-padding: 10px;
-color: #050585;
-transition: 0.5s ease all;
+    display: inline-block;
+    padding: 10px;
+    color: #050585;
+    transition: 0.5s ease all;
+    position: relative;
 }
 
 li.nav-bar-item.active {
@@ -59,13 +68,79 @@ li.nav-bar-item > a {
         color: #fff !important;
     }
 
-/*
+.notifications-label {
+    background-color: #fa3e3e;
+    border-radius: 2px;
+    color: white;
+    padding: 1px 3px;
+    font-size: 10px;
+    position: absolute; 
+    top: 0;
+    right: 0;
+}
+.notifications-modal {
+    position: absolute;
+    right: 0;
+    z-index: 2;
+    background-color: #f9f9f9;
+    padding: 5px 15px;
+    border-radius: 2px;
+    border: 1px solid #d9d9d9;
+    width: 360px;
+    display: block;
+}
+.notifications-modal.hidden {
+    display: none;
+}
+    /*
     Jobs matching page syle
 */
-.jobs-filter-bar {
-margin: 50px 0;
-text-align: right;
+    #jobs-modal { /* This blocks triggers the element with id="jobs-modal" and assigns it the following style*/
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        height: auto;
+        background-color: #0e0e0e70;
+        z-index: 999999;
+        display: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+#job-expanded {
+    width: 50%;
+    margin: 100px auto;
+    background-color: white;
+    padding: 20px;
 }
+#modal-job-title {
+    width: 100%;
+    /* margin: 0 auto; */
+    text-align: center;
+}
+.button-div {
+    display: inline-block;
+    padding: 10px;
+    background-color: #019fdc;
+    color: white;
+    cursor: pointer;
+    transition: 0.5s ease all;
+}
+.button-div.close-button {
+    background-color: #d83a3a;
+}
+.button-div.confirm-button {
+    background-color:#3ad888;
+}
+.button-div:hover {
+    filter: brightness(1.1)
+}
+    /* End of job modal style*/
+    .jobs-filter-bar {
+        margin: 50px 0;
+        text-align: right;
+    }
 
 .job-listing-wrapper {
 padding: 20px;
