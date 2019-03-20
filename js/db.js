@@ -1,7 +1,16 @@
-// JavaScript source code
+//In this file:
 
+/**
+    * Databases
+    * ------
+    * Databases functions
+    * ------
+    * Classes
+* */
 
-
+/*-------------------------------------------------------------------------------
+// Databases
+-------------------------------------------------------------------------------*/
 var usersDatabase = [
     {
         id: 1,
@@ -43,24 +52,92 @@ var usersDatabase = [
 
 ];
 
-/*class Location {
-    constructor(locationId) {
-        this.locationId = locationId;
-    }
-
-    getLocation()
+var locationsDatabase = [
     {
-        for (i = 0; i < locationsDatabase.length(); i++) { //We loop through every object in the locationsDatabase array
-            if (locationsDatabase[i].locationId == this.locationId) { //If the location id of the location we are looping through matches the constructor location id, we have a match
-                return locationsDatabase[i]; // We return the matched 
-            }
-        }
-
-        return false; // No locations have been found that match the input location Id. The method returns false
+        id: 1,
+        locationName: 'Forno',
+        category: 1,
+        managedBy: 1,
+        address: 'Howitzvej',
+        streetNumber: 1,
+        city: 'Frederiksberg',
+        zip: 2000
+    },
+    {
+        id: 2,
+        locationName: 'Pasta',
+        category: 1,
+        managedBy: 1,
+        address: 'Fasanvej',
+        streetNumber: 2,
+        city: 'Frederiksberg',
+        zip: 2000
+    },
+    {
+        id: 3,
+        locationName: 'Pizza',
+        category: 1,
+        managedBy: 1,
+        address: 'Smallgade',
+        streetNumber: 2,
+        city: 'Frederiksberg',
+        zip: 2000
     }
-    
-}*/
 
+];
+
+var jobsDatabase = [
+    {
+        id: 1, //Unique ID of the job
+        locationId: 2,
+        position: "Bartender", //Name of the open position
+        type: "Full-Time", //Either Full-Time or Part-Time
+        creationDate: "Fri Mar 01 2019 16:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
+        startingDate: "Mon Apr 01 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
+        image: "", //Optional, url image for the modal
+        fullDescription: "We are looking for... ", // Optional, longer description for the modal
+    },
+    {
+        id: 2,
+        locationId: 2,
+        position: "Cook", 
+        type: "Part-Time", 
+        creationDate: "Fri Mar 01 2019 10:21:12 GMT+0100", 
+        startingDate: "Tue Apr 02 2019 20:30:12 GMT+0100", 
+        image: "", 
+        fullDescription: "We are looking for... ", 
+    },
+
+    {
+        id: 3, 
+        locationId: 3,
+        position: "Cook",
+        type: "Part-Time",
+        creationDate: "Thu Mar 14 2019 10:21:12 GMT+0100",
+        startingDate: "0",
+        image: "",
+        fullDescription: "We are looking for... ",
+    }
+];
+
+var messagesDatabase = [
+    {
+        id: 1, //Unique id of the message
+        senderId: 1, //Id of the sending user
+        recipientsId: [2, 3], //Id(s) of the recipients
+        text: 'Hello, this is a test message.',
+        locationId: '',
+        date: '',
+        seen: []
+
+    }
+];
+
+
+
+/*-------------------------------------------------------------------------------
+// Functions
+-------------------------------------------------------------------------------*/
 function getValueFromDb(property, database, key, value) {
     for (i = 0; i < database.length; i++) {
         
@@ -70,7 +147,20 @@ function getValueFromDb(property, database, key, value) {
     }
 }
 
+function sortObjectsArray(objectsArray, key) {
+    objectsArray.sort(function (a, b) {
+        return a.key - b.key;
+    });
+}
 
+function getLatestDbId(objectsArray) {
+    sortObjectsArray(objectsArray, 'id');
+    return objectsArray[objectsArray.length - 1].id;
+}
+
+/*-------------------------------------------------------------------------------
+// Classes
+-------------------------------------------------------------------------------*/
 class User {
     constructor(username) {
         this.username = username;
@@ -86,6 +176,9 @@ class User {
         var recipientsIds = [];
         recipientsIds.push(recipients);
         console.log('dbg');
+        if (locationId == '') {
+            locationId = null;
+        }
         var authorId = this.id;
         var messageDate = new Date();
         var messageId = getLatestDbId(messagesDatabase) + 1;
@@ -94,6 +187,7 @@ class User {
             id: messageId,
             author: authorId,
             recipientsId: recipientsIds,
+            text: text,
             locationId: locationId,
             date: messageDate
 
@@ -118,21 +212,54 @@ class User {
         return receivedMessages;
     }
 
-    getSeenMessages() {
+
+    applyForJob(jobId, employerId, locationId) {
+        console.log('Location id is ' + locationId);
+        var locationName = getValueFromDb('locationName', locationsDatabase, 'id', locationId);
+        var employerName = getValueFromDb('name', usersDatabase, 'id', employerId);
+        var jobPosition = getValueFromDb('position', jobsDatabase, 'id', jobId);
+        this.sendMessage([employerId], `Hello ${employerName}, I would like to apply as a ${jobPosition} at ${locationName}.`, locationId);
+        console.log(`Succesfully applied at ${locationName}`);
+        document.getElementById('job-modal-main').style.display = 'none';
+        document.getElementById('job-modal-success').style.display = 'block';
+    }
+
+
+    getUnseenMessages() {
         var receivedMessages = this.getReceivedMessages();
         var unseenMessages = [];
+        var messageSeenByUser = false; //Dummy variable
         var currentUserId = this.id;
-        console.log('hi');
-
         receivedMessages.forEach(function (singleMessage) {
             singleMessage.seen.forEach(function (seenBy) {
 
                 if (seenBy == currentUserId) {
-                    unseenMessages.push(singleMessage);
+                    messageSeenByUser = true;
+                }
+            });
+
+            if (!messageSeenByUser) {
+                unseenMessages.push(singleMessage);
+            }
+            messageSeenByUser = false; // Dummy variable reset for the next loop
+       
+        });
+        return unseenMessages;
+    }
+
+    getSeenMessages() {
+        var receivedMessages = this.getReceivedMessages();
+        var seenMessages = [];
+        var currentUserId = this.id;
+        receivedMessages.forEach(function (singleMessage) {
+            singleMessage.seen.forEach(function (seenBy) {
+
+                if (seenBy == currentUserId) {
+                    seenMessages.push(singleMessage);
                 }
             });
         });
-        return unseenMessages;
+        return seenMessages;
     }
 
     getNotifications() {
@@ -151,6 +278,7 @@ class User {
     }
 }
 
+
 class Database { // This class is used to store data either in the local or in the session storage. 
     //The HTML Storage is fully supported in Chrome, but it may not be in other browsers.
     // Local and Session storages will be used to store user input data in the absence of a proper database system such as MySql.
@@ -164,6 +292,13 @@ class Database { // This class is used to store data either in the local or in t
         this.localStorage = localStorage; //Local storage is persistent on the browser used to open the website
     }
 
+    getLocation(locationId) {
+        for (i = 0; i < locationsDatabase.length; i++) {
+            if (locationsDatabase[i].id == locationId) {
+                return locationsDatabase[i];
+            }
+        }
+            }
     createLocation() {
         locationId = getLatestDbId(this.locationsDatabase) + 1; //Generates a new ID for the location to create. It does do by taking the highest ID the the database and increasing it by 1.
 
@@ -188,102 +323,24 @@ class Database { // This class is used to store data either in the local or in t
 
     }
 
+ }
+
+
+//Deprecated
+/*class Location {
+    constructor(locationId) {
+        this.locationId = locationId;
     }
 
-function sortObjectsArray(objectsArray, key) {
-    objectsArray.sort(function (a, b) {
-        return a.key - b.key;
-    });
-}
+    getLocation()
+    {
+        for (i = 0; i < locationsDatabase.length(); i++) { //We loop through every object in the locationsDatabase array
+            if (locationsDatabase[i].locationId == this.locationId) { //If the location id of the location we are looping through matches the constructor location id, we have a match
+                return locationsDatabase[i]; // We return the matched 
+            }
+        }
 
-function getLatestDbId(objectsArray) {
-    sortObjectsArray(objectsArray, 'id');
-    console.log(objectsArray[objectsArray.length - 1]);
-    return objectsArray[objectsArray.length - 1].id;
+        return false; // No locations have been found that match the input location Id. The method returns false
     }
-
-var locationsDatabase = [
-    {
-        id: 1,
-        locationName: 'Forno',
-        type: 1,
-        address: 'Howitzvej',
-        streetNumber: 1,
-        city: 'Frederiksberg',
-        zip: 2000
-    },
-    {
-        id: 2,
-        locationName: 'Pasta',
-        type: 1,
-        address: 'Fasanvej',
-        streetNumber: 2,
-        city: 'Frederiksberg',
-        zip: 2000
-    }
-
-];
-
-var jobsDatabase = [
-    {
-        id: 1, //Unique ID
-        locationId: 2,
-        locationName: "Some cafe", //Name of the restaurant
-        locationType: "Cafe", //Whether Restaurant, Fast-food, Cafe,
-        position: "Bartender", //Name of the open position
-        type: "Full-Time", //Either Full-Time or Part-Time
-        address: "Howitzvej", //Street name
-        streetNumber: 60, //streetNumber number
-        city: "Frederiksberg",
-        zip: "2000",
-        creationDate: "Fri Mar 01 2019 16:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
-        startingDate: "Mon Apr 01 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
-        image: "", //Optional, url image for the modal
-        fullDescription: "We are looking for... ", // Optional, longer description for the modal
-    },
-    {
-        id: 2, //Unique ID
-        locationId: 2,
-        locationName: "Some Restaurant", //Name of the restaurant
-        locationType: "Restaurant", //Whether Restaurant, Fast-food, Cafe,
-        position: "Cook", //Name of the open position
-        type: "Part-Time", //Either Full-Time or Part-Time
-        address: "Howitzvej", //Street name
-        streetNumber: "602", //streetNumber number
-        city: "Frederiksberg2",
-        zip: "2000",
-        creationDate: "Fri Mar 01 2019 10:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
-        startingDate: "Tue Apr 02 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
-        image: "", //Optional, url image for the modal
-        fullDescription: "We are looking for... ", // Optional, longer description for the modal
-    },
-
-    {
-        id: 3, //Unique ID
-        locationId: 3,
-        locationName: "Some Fast-Food", //Name of the restaurant
-        locationType: "Fast-Food", //Whether Restaurant, Fast-food, Cafe,
-        position: "Cook", //Name of the open position
-        type: "Part-Time", //Either Full-Time or Part-Time
-        address: "Fasanvej", //Street name
-        streetNumber: "1", //streetNumber number
-        city: "Frederiksberg",
-        zip: "2000",
-        creationDate: "Thu Mar 14 2019 10:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
-        startingDate: "0", //Javascript Date object. It is the date of job start
-        image: "", //Optional, url image for the modal
-        fullDescription: "We are looking for... ", // Optional, longer description for the modal
-    }
-];
-
-var messagesDatabase = [ 
-    {
-        id: 1, //Unique id of the message
-        senderId: 1, //Id of the sending user
-        recipientsId: [2, 3], //Id(s) of the recipients
-        locationId: '',
-        date: '',
-        seen: []
-
-    }
-]
+    
+}*/

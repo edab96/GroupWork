@@ -10,56 +10,28 @@
     <script src="./js/db.js"></script>
 
     <script>
-        
 
-
-        var jobs = [{
-            id: 10202303, //Unique ID
-            locationName: "Some cafe", //Name of the restaurant
-            locationType: "Cafe", //Whether Restaurant, Fast-food, Cafe,
-            position: "Bartender", //Name of the open position
-            type: "Full-Time", //Either Full-Time or Part-Time
-            address: "Howitzvej", //Street name
-            houseNumber: 60, //Civic number
-            city: "Frederiksberg",
-            zip: "2000",
-            creationDate: "Fri Mar 01 2019 16:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
-            startingDate: "Mon Apr 01 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
-            image: "", //Optional, url image for the modal
-            fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
-        },
-        {
-            locationName: "Some Restaurant", //Name of the restaurant
-            locationType: "Restaurant", //Whether Restaurant, Fast-food, Cafe,
-            position: "Cook", //Name of the open position
-            type: "Part-Time", //Either Full-Time or Part-Time
-            address: "Howitzvej", //Street name
-            civic: "602", //Civic number
-            city: "Frederiksberg2",
-            zip: "2000",
-            creationDate: "Fri Mar 01 2019 10:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
-            startingDate: "Tue Apr 02 2019 20:30:12 GMT+0100", //Javascript Date object. It is the date of job start
-            image: "", //Optional, url image for the modal
-            fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
-        },
-
-        {
-            locationName: "Some Fast-Food", //Name of the restaurant
-            locationType: "Fast-Food", //Whether Restaurant, Fast-food, Cafe,
-            position: "Cook", //Name of the open position
-            type: "Part-Time", //Either Full-Time or Part-Time
-            address: "Fasanvej", //Street name
-            civic: "1", //Civic number
-            city: "Frederiksberg",
-            zip: "2000",
-            creationDate: "Thu Mar 14 2019 10:21:12 GMT+0100", //Javascript Date object. It is the date the job announcement has been posted
-            startingDate: "0", //Javascript Date object. It is the date of job start
-            image: "", //Optional, url image for the modal
-            fullDescription: "This is a test. This box... ", // Optional, longer description for the modal
-        }];
+        var jobs = '';
+        var jobsLocationsJoin = jobsDatabase;
+        document.addEventListener('DOMContentLoaded', function () {//Once the jobs page has been loaded
+            console.log('Original jobsDB:' + jobsDatabase);
+            var correspondingLocation = '';
+            jobsLocationsJoin.forEach(function (singleJob) { //We loop through each object in the jobsArray Database
+                var jobIdCache = singleJob.id; //We store the jobId temporarily
+                var locationIdCache = singleJob.locationId;
+                console.log('Job is:' + singleJob + ' location id:' + singleJob.locationId);
+                correspondingLocation = db.getLocation(singleJob.locationId); //For each job listing, we get the corresponding location details
+               
+                //var locationIdCache = correspondingLocation.id;
+                Object.assign(singleJob, correspondingLocation); //We join the job object to the corresponding location object
+                singleJob.id = jobIdCache; //Since the previous method overwrites properties with the same key, we make sure the location.id does not overwrite the job.id
+                singleJob.locationId = locationIdCache;
+            });
+            jobs = jobsLocationsJoin; //We assign jobs the array with the concatenated jobs,locations database
+        });
 
         function populateJobsList() {
-            jobsDatabase.forEach(function (dbJob) {
+            jobs.forEach(function (dbJob) {
                 console.log(jobDisplayOptions.type + " " + dbJob.type);
 
                 if (jobDisplayOptions.type == 'All') {
@@ -74,9 +46,9 @@
         }
 
         function appendToJobListing(jobToAppend) {
+            console.log(jobToAppend);
             var dateDisplayptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             announcementDate = new Date(jobToAppend.creationDate).toLocaleDateString("en-US", dateDisplayptions);
-
             var startingDate = new Date(jobToAppend.startingDate);
             var now = new Date();
 
@@ -87,13 +59,25 @@
                 startingDate = startingDate.toLocaleDateString("en-US", dateDisplayptions);
             }
 
+            
+           
+            var employerId = jobToAppend.managedBy;// getValueFromDb('managedBy', 'locationsDatabase', 'id', locationId);
+
+            var positionText = 1;
+            if (jobToAppend.position == 0) {
+
+            }
+            
+
             htmlJob = `<div class="job-listing-wrapper" data-job-type="${jobToAppend.type}">` +
                 `<h2 class="job-listing-header" >${jobToAppend.locationName}</h2 >` +
                 `<p class="job-listing-info">${jobToAppend.position}, ${jobToAppend.type}.</p>` +
                 `<p class="job-listing-date">Posted on: ${announcementDate}.</p>` +
                 `<p class="job-listing-start" >Job start: ${startingDate}.</p >` +
-                `<button onclick="openJobModal('${jobToAppend.position} wanted at ${jobToAppend.locationName}', '${jobToAppend.fullDescription}', '${jobToAppend.address}', '${jobToAppend.streetNumber}', '${jobToAppend.zip}');">View more</button></div >`;
+                `<button onclick="openJobModal('${jobToAppend.id}','${employerId}','${jobToAppend.locationId}','${jobToAppend.position} wanted at ${jobToAppend.locationName}', '${jobToAppend.fullDescription}', '${jobToAppend.address}', '${jobToAppend.streetNumber}', '${jobToAppend.zip}');">View more</button></div >`;
             document.getElementById("job-list-container").insertAdjacentHTML('afterbegin', htmlJob);
+
+           
         }
 
         function clearJobList() {
@@ -185,16 +169,16 @@
                         </div>
                     </a>
 
-                        <div class="notifications-modal hidden" id="notifications-panel">
-                            <h3>New</h3>
-                            <ul>
-                                <li class="listed-notification unseen"></li>
-                            </ul>
-                            <h3>Read</h3>
-                            <ul>
-                                <li class="listed-notification seen"></li>
-                            </ul>
-                        </div>
+                    <div class="notifications-modal hidden" id="notifications-panel">
+                        <h3>New</h3>
+                        <ul id="listed-notifications">
+
+                        </ul>
+                        <!--<h3>Read</h3>
+                        <ul>
+                            <li class="listed-notification seen"></li>
+                        </ul>-->
+                    </div>
                 </li>
 
             </ul>
@@ -214,19 +198,25 @@
     <!--The following code is the pop up modal. By default, it is hidden-->
     <div id="jobs-modal" onclick="closeJobModal();">
         <div id="job-expanded" onclick="event.stopPropagation()">
-            <h2 id="modal-job-title">TITLE</h2>
-            <p id="modal-description">DESCRIPTION</p>
+            <div id="job-modal-main" style="display:block;">
+                <h2 id="modal-job-title">TITLE</h2>
+                <p id="modal-description">DESCRIPTION</p>
 
-            <div class="mapouter" style="">
-                <div class="gmap_canvas">
-                <iframe width="600" height="300" id="gmap_canvas" style="overflow: hidden;background: none !important; height: 300px;width: 600px;" src="https://maps.google.com/maps?q=frederikskaj%202p&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
-                </iframe>
+                <div class="mapouter" style="">
+                    <div class="gmap_canvas">
+                        <iframe width="600" height="300" id="gmap_canvas" style="overflow: hidden;background: none !important; height: 300px;width: 600px;" src="https://maps.google.com/maps?q=frederikskaj%202p&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                    </div>
+                </div>
+                <div id="modal-button-wrapper" style="margin:0 auto; text-align: center;">
+                    <div class="button-div close-button" id="modal-close" onclick="closeJobModal();">Close</div>
+                    <div class="button-div confirm-button" id="modal-apply">Apply Now</div>
+                    <div class="button-div redirect-button" id="modal-login-redirect" onclick="window.location.replace('login.html');">Login to apply</div>
                 </div>
             </div>
-            <div id="modal-button-wrapper" style="margin:0 auto; text-align: center;">
-                <div class="button-div close-button" id="modal-close" onclick="closeJobModal();">Close</div>
-                <div class="button-div confirm-button" id="modal-apply">Apply Now</div>
-                <div class="button-div redirect-button" id="modal-login-redirect" onclick="window.location.replace('login.html');">Login to apply</div>
+            <div id="job-modal-success" style="display:none;">
+                <h2 id="modal-job-title" style="top:50%;">You have successfully applied!</h2>
+                <img />
+
             </div>
         </div>
         <div></div>
