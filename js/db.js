@@ -11,6 +11,12 @@
 /*-------------------------------------------------------------------------------
 // Databases
 -------------------------------------------------------------------------------*/
+var localUsersDatabase = [];
+var localMessagesDatabase = [];
+var joinedMessagesDatabase = [];
+var joinedUsersDatabase = [];
+
+
 var usersDatabase = [
     {
         id: 1,
@@ -55,7 +61,7 @@ var usersDatabase = [
 var locationsDatabase = [
     {
         id: 1,
-        locationName: 'Forno',
+        locationName: 'Fish place',
         category: 1,
         managedBy: 1,
         address: 'Howitzvej',
@@ -65,7 +71,7 @@ var locationsDatabase = [
     },
     {
         id: 2,
-        locationName: 'Pasta',
+        locationName: 'Cocktails Place',
         category: 1,
         managedBy: 1,
         address: 'Fasanvej',
@@ -75,7 +81,7 @@ var locationsDatabase = [
     },
     {
         id: 3,
-        locationName: 'Pizza',
+        locationName: 'Pizza Place',
         category: 1,
         managedBy: 1,
         address: 'Smallgade',
@@ -99,7 +105,7 @@ var jobsDatabase = [
     },
     {
         id: 2,
-        locationId: 2,
+        locationId: 3,
         position: "Cook", 
         type: "Part-Time", 
         creationDate: "Fri Mar 01 2019 10:21:12 GMT+0100", 
@@ -110,7 +116,7 @@ var jobsDatabase = [
 
     {
         id: 3, 
-        locationId: 3,
+        locationId: 1,
         position: "Cook",
         type: "Part-Time",
         creationDate: "Thu Mar 14 2019 10:21:12 GMT+0100",
@@ -138,6 +144,16 @@ var messagesDatabase = [
 /*-------------------------------------------------------------------------------
 // Functions
 -------------------------------------------------------------------------------*/
+
+function writeToLocalStorage(itemToWrite, key) {
+    localStorage.setItem(key, JSON.stringify(itemToWrite));
+}
+
+function getFromLocalStorage(itemToWrite, key) {
+    return JSON.parse(localStorage.getItem(key));
+}
+
+
 function getValueFromDb(property, database, key, value) {
     for (i = 0; i < database.length; i++) {
         
@@ -164,10 +180,10 @@ function getLatestDbId(objectsArray) {
 class User {
     constructor(username) {
         this.username = username;
-        this.id = getValueFromDb('id', usersDatabase, 'username', username);
-        this.password = getValueFromDb('password', usersDatabase, 'username', username);
-        this.firstName = getValueFromDb('name', usersDatabase, 'username', username);
-        this.lastName = getValueFromDb('lastName', usersDatabase, 'username', username);
+        this.id = getValueFromDb('id', joinedUsersDatabase, 'username', username);
+        this.password = getValueFromDb('password', joinedUsersDatabase, 'username', username);
+        this.firstName = getValueFromDb('name', joinedUsersDatabase, 'username', username);
+        this.lastName = getValueFromDb('lastName', joinedUsersDatabase, 'username', username);
 
     }
 
@@ -192,7 +208,9 @@ class User {
             date: messageDate
 
         }
-        messagesDatabase.push(messageToSend);
+        joinedMessagesDatabase.push(messageToSend);
+        writeToLocalStorage(localMessagesDatabase, 'localMessagesDatabase');
+
     }
 
     
@@ -293,7 +311,7 @@ class Database { // This class is used to store data either in the local or in t
     }
 
     getLocation(locationId) {
-        for (i = 0; i < locationsDatabase.length; i++) {
+        for (var i = 0; i < locationsDatabase.length; i++) {
             if (locationsDatabase[i].id == locationId) {
                 return locationsDatabase[i];
             }

@@ -4,15 +4,14 @@ var loggedUser = '';
 var toggleNotificationsDisplayTrigger;
 var notificationsBoxOpen = false;
 
+
 /*-------------------------------------------------------------------------------
 // Login and session functions
 -------------------------------------------------------------------------------*/
 
 function loginUser() {
-
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
-    var loginSuccessful = false;
 
     for (i = 0; i < usersDatabase.length; i++) {
         if (usersDatabase[i].username == username && usersDatabase[i].password == password) {
@@ -26,81 +25,96 @@ function loginUser() {
                 sessionStorage.setItem('user', username); // Stores the logged user in the session storage, which gets cleared when the browser is closed
             }
 
-
             location = 'home.html';
+            return false;
         }
 
     }
 
-    if (loginSuccessful !== true) {
-        alert('Invalid login credentials. Try again!');
-    }
-
+    alert('Invalid login credentials. Try again!');
+    
 }
 
 
 
 function isUserLoggedIn() {
-    if (sessionStorage.getItem('user') != null) {
+    if (sessionStorage.getItem('user') != null) { //If we find any user in the session storage, we set the logged in user to that one
         loggedUser = sessionStorage.getItem('user');
         return true;
     }
-    else if (localStorage.getItem('user') != null) {
+    else if (localStorage.getItem('user') != null) { //If we find any user in the local storage, we set the logged in user to that one
         loggedUser = localStorage.getItem('user');
         return true;
     }
-    else {
-        return false;
+    else { //Otherwise, we could not detect a logged in user
+        return false; 
     }
 }
 
-function logOut() {
-    localStorage.removeItem('user');
+function logout() { //We empty the logged in user from the both local and session storages, then we force a page refresh
+    sessionStorage.removeItem('user');
+    localStorage.removeItem('user'); 
+    window.location.reload(false);
 }
+
+function initializeDb() {
+    localMessagesDatabase = JSON.parse(localStorage.getItem('localMessagesDatabase'));
+    localUsersDatabase = JSON.parse(localStorage.getItem('localUsersDatabase'));
+
+    if (localUsersDatabase == null) {
+        localUsersDatabase = [];
+        joinedUsersDatabase = usersDatabase;
+    }
+    else {
+        joinedUsersDatabase = usersDatabase.concat(localUsersDatabase);
+    }   
+
+    if (localMessagesDatabase == null) {
+        localMessagesDatabase = [];
+        joinedMessagesDatabase = messagesDatabase;
+    }
+    else {
+        joinedMessagesDatabase = messagesDatabase.concat(localMessagesDatabase);
+    }   
+    db = new Database();
+}
+
 
 function verifySession() {
     if (isUserLoggedIn()) {
-        document.getElementById('profile-nav').style.display = 'block';
+        // If the user is logged in, we display the "registered user" version of the menu
+        document.getElementById('profile-nav').style.display = 'inline-block';
+        document.getElementById('logout-nav').style.display = 'inline-block';
         document.getElementById('login-nav').style.display = 'none';
-        console.log(`Currently logged in as: ${loggedUser}`);
-        console.log('Local storage: ' + localStorage.getItem('user' + ' Session storage: ' + sessionStorage.getItem('user')));
-        currentUser = new User(loggedUser);
+        document.getElementById('signup-nav').style.display = 'none';
+
+        currentUser = new User(loggedUser); //We set the currentUser to the logged in user
         newNotifications = currentUser.getNotifications(); // We check if the user has new notifications
-        if (newNotifications > 0) {
+        if (newNotifications > 0) { //If yes, we display them in the HTML element
             document.getElementById('notifications-counter').innerHTML = newNotifications;
             document.getElementById('notifications-counter').style.display = 'block';
         }
-        else {
+        else { //If no, we hide the the HTML element
             document.getElementById('notifications-counter').innerHTML = '';
             document.getElementById('notifications-counter').style.display = 'none';
         }
-
-
+    
     }
-    else {
+    else { // If the user is not logged in, we display the "visitor" version of the menu
         document.getElementById('profile-nav').style.display = 'none';
-        document.getElementById('login-nav').style.display = 'block';
+        document.getElementById('logout-nav').style.display = 'none';
+        document.getElementById('login-nav').style.display = 'inline-block';
+        document.getElementById('signup-nav').style.display = 'inline-block';
 
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () { //This function is fired upon page load
     console.log('Page has been loaded');
     verifySession();
-    db = new Database();
+    initializeDb();
     toggleNotificationsDisplayTrigger = document.getElementById("notifications-trigger");
-
-    try {
-        localStorage.setItem(test, test);
-        localStorage.removeItem(test);
-        return true;
-    }
-    catch (e) {
-        return false;
-    }
-
-
-});
+ });
 
 
 /*-------------------------------------------------------------------------------
@@ -124,27 +138,25 @@ function hideNotifications() {
     document.getElementById('notifications-panel').classList.add("hidden");
 }
 
-document.addEventListener('click', function (event) {
-    //console.log('clicked');
-
+document.addEventListener('click', function (event) { //This function gets fired  every time the user clicks anywhere on a page
+ 
     var isClickInside = toggleNotificationsDisplayTrigger.contains(event.target);
 
-    if (document.getElementById("notifications-panel").contains(event.target)) {
+    if (document.getElementById("notifications-panel").contains(event.target)) { //If the user clicks inside the notifications pop up we do nothing
         return;
-
     }
 
-    if (isClickInside) {
-        if (notificationsBoxOpen) {
+    if (isClickInside) { // If the user clicks on the notification menu item, then -> we hide the notification pop up
+        if (notificationsBoxOpen) { //We hide the notifications pop up if it was open
             hideNotifications();
             notificationsBoxOpen = false;
         }
-        else {
+        else {                  //We show the notifications pop up if it was not open
             showNotifications();
             notificationsBoxOpen = true;
         }
 
-    } else {
+    } else { //If the user has click anywhere else on the page rather than the previous two cases, we hide the notifications pop up
         hideNotifications();
         notificationsBoxOpen = false;
     }
@@ -170,7 +182,6 @@ function openJobModal(jobId, employerId, locationId, title, description, address
         document.getElementById('modal-login-redirect').style.display = 'none'; //We show the "Apply now" button in the jobs modal
 
         document.getElementById('modal-apply').onclick = function () {
-            console.log('Applying at ' + locationId + ' manager is: ' + employerId);
             currentUser.applyForJob(jobId, employerId, locationId);
         }
 

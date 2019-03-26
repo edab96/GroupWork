@@ -80,9 +80,12 @@
     </div>
 
     <div class="main">
-        <div class="login-wrapper">
-            <input type="text" name="username" id="username" />
-            <input type="password" name="password" id="password" />
+        <div class="login-wrapper" style="width:50%;min-width:500px;margin:0 auto;text-align:center;">
+            <h2>Login</h2>
+            <span>Username</span>
+            <input type="text" name="username" id="username" /><br />
+            <span>Password</span>
+            <input type="password" name="password" id="password" /><br />
             <input type="checkbox" name="rememberLogin" value="rememberLogin" id="stayLogged">Remember Me<br>
             <input type="submit" name="submit" id="submit-login" value="Login" onclick="loginUser();" />
         </div>

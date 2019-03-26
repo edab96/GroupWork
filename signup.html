@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
+    <script src="./js/functions.js"></script>
+    <script src="./js/db.js"></script>
+
+ 
+    <script>
+        var isNameValid = false;
+        var isUsernameValid = false;
+        var isEmailValid = false;
+        var isPasswordValid = false;
+
+
+        function validateName(input) {
+            var feedback = document.getElementById('name-input-feedback');
+            
+            if (input.value.length < 4) {
+                feedback.innerHTML = 'This field needs to be longer than 4 characters'
+                input.style.border = '1px solid #e7a3a3';
+                isNameValid = false;
+            }
+            else if (/\d/.test(input.value)) {
+                feedback.innerHTML = 'This field cannot contain numbers.'
+                isNameValid = false;
+            }
+            else {
+                feedback.innerHTML = ''
+                input.style.border = '';
+                isNameValid = true;
+            }
+        }
+
+
+            function validateEmail(input) {
+                var feedback = document.getElementById('email-input-feedback');
+
+                document.getElementById('email').value.indexOf('.')
+                if (input.value.length < 4 || (input.value.indexOf('.') == -1) || (input.value.indexOf('@') == -1) || (input.value[input.value.length - 1] == '.') || (input.value[input.value.length - 2] == '.')) {
+                    feedback.innerHTML = 'This is not a valid email.';
+                    isEmailValid = false;
+                }
+                else {
+                    feedback.innerHTML = '';
+                    input.style.border = '';
+                    isEmailValid = true;
+                }
+        }
+
+        function validateUsername(input) {
+            var feedback = document.getElementById('username-input-feedback');
+
+            if (input.value.length < 5) {
+                feedback.innerHTML = 'Username must be longer than 5 characters.';
+                isUsernameValid = false;
+            }
+            else {
+                feedback.innerHTML = '';
+                input.style.border = '';
+                isUsernameValid = true;
+            }
+        }
+
+        function validatePassword(input) {
+            var feedback = document.getElementById('password-input-feedback');
+
+            if (input.value.length < 8) {
+                feedback.innerHTML = 'Password must be at least 8 characters long.';
+                isPasswordValid = false;
+            }
+            else {
+                feedback.innerHTML = '';
+                input.style.border = '';
+                isPasswordValid = true;
+            }
+        }
+        function signupUser() {
+            var feedback = document.getElementById('registration-feedback');
+
+            var name = document.getElementById('firstname').value;
+            var lastname = document.getElementById('lastname').value;
+            var email = document.getElementById('email').value;
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var sex = document.getElementById('sex-select').value;
+
+            var id = getLatestDbId(joinedUsersDatabase) + 1;
+            var today = new Date();
+
+            if (document.getElementById('signup-tos').checked == false) {
+                feedback.innerHTML = 'You need to accept TOS in order to sign up!';
+            }
+            else if (!isNameValid || !isUsernameValid || !isPasswordValid) {
+                feedback.innerHTML = 'Please complete all fields correctly';
+            }
+
+            else {
+                localUsersDatabase.push({
+                    id: id,
+                    username: username,
+                    password: password,
+                    name: name,
+                    lastName: lastname,
+                    birthDate: '',
+                    sex: sex,
+                    registerDate: today,
+                    managing: [],
+                    employed: []
+                });
+
+                localStorage.setItem('localUsersDatabase', JSON.stringify(localUsersDatabase));
+                sessionStorage.setItem('user', username);
+
+                feedback.innerHTML = '';
+                feedback.style.color = 'green';
+                feedback.innerHTML = 'Succesfully signed up!<br>You will be redirected in some seconds.';                
+                setTimeout(function () { window.location = 'home.html'; }, 3000);
+            }
+            
+        }
+        function isUserLoggedIn() {
+            if (sessionStorage.getItem('user') !== null) {
+                loggedUser = sessionStorage.getItem('user');
+                return true;
+            }
+            else if (localStorage.getItem('user') !== null) {
+                loggedUser = localStorage.getItem('user');
+            }
+            else {
+                return false;
+            }
+        }
+
+
+        function verifySession() {
+            if (isUserLoggedIn()) {
+                document.getElementById('profile-nav').style.display = 'block';
+                document.getElementById('login-nav').style.display = 'none';
+                console.log(`Currently logged in as: ${loggedUser}`);
+                console.log('Local storage: ' + localStorage.getItem('user'));
+            }
+            else {
+                document.getElementById('profile-nav').style.display = 'none';
+                document.getElementById('login-nav').style.display = 'block';
+
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            //alert("Page has been loaded");
+            verifySession();
+
+        });
+    </script>
+</head>
+
+
+
+<body>
+    <div class="header">
+        <div class="nav-bar-wrapper">
+            <ul class="nav-bar nav-left">
+                <li class="nav-bar-item">
+                    <a href="home.html">Home</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="" id="my-restaurants-nav">My restaurants</a>
+                </li>
+                <li class="nav-bar-item active">
+                    <a href="jobs.html">Jobs</a>
+                </li>
+                <li class="nav-bar-item">
+                    <a href="">Notifications</a>
+                </li>
+
+            </ul>
+            <ul class="nav-bar nav-right">
+                <li class="nav-bar-item" id="profile-nav">
+                    <a href="profile.html">Profile</a>
+                </li>
+                <li class="nav-bar-item" id="login-nav">
+                    <a href="login.html">Login</a>
+                </li>
+            </ul>
+        </div>
+        <div class="header-wall"><!--<img src="./resources/images/header.jpg" style="width:100%;"/>--></div>
+    </div>
+
+    <div class="main">
+        <div class="signup-wrapper" style="width:50%;min-width:500px;margin:0 auto;text-align:center;">
+            <h2>Signup</h2>
+
+            <p id="registration-feedback" style="color:darkred;"></p>
+
+            <span>Name</span><br>
+            <input type="text" name="firstname" id="firstname" onkeyup="validateName(this);" /><br />
+            <p id="name-input-feedback" style="color:darkred;"></p>
+
+            <span>Last name</span><br>
+            <input type="text" name="lastname" id="lastname" onkeyup="validateName(this);" /><br />
+            <p id="lastname-input-feedback" style="color:darkred;"></p>
+
+            <span>Sex</span>
+            <select id="sex-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select><br />
+
+            <span>Email</span><br>
+            <input type="text" name="email" id="email" onkeyup="validateEmail(this);" /><br />
+            <p id="email-input-feedback" style="color:darkred;"></p>
+
+            <span>Username</span><br>
+            <input type="text" name="username" id="username" onkeyup="validateUsername(this);" /><br />
+            <p id="username-input-feedback" style="color:darkred;"></p>
+
+            <span>Password</span><br>
+            <input type="password" name="password" id="password" onkeyup="validatePassword(this);" /><br />
+            <p id="password-input-feedback" style="color:darkred;"></p>
+
+            <input type="checkbox" name="signup-tos" value="signup-tos" id="signup-tos">Accept TOS<br>
+
+            <input type="submit" name="submit" id="submit-signup" value="Sign-up" onclick="signupUser();" />
+        </div>
+    </div>
+</body>
+
+
+</html>
