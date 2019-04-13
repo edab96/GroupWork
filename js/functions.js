@@ -1,41 +1,13 @@
 
 //Global vars
 var loggedUser = '';
-var toggleNotificationsDisplayTrigger;
-var notificationsBoxOpen = false;
+var notificationsButton;
+var notificationsBoxHidden = true;
 
 
 /*-------------------------------------------------------------------------------
-// Login and session functions
+// Shared session functions
 -------------------------------------------------------------------------------*/
-
-function loginUser() {
-    var username = document.getElementById('username').value;
-    var password = document.getElementById('password').value;
-
-    for (i = 0; i < usersDatabase.length; i++) {
-        if (usersDatabase[i].username == username && usersDatabase[i].password == password) {
-            alert('User logged in');
-            loginSuccessful = true;
-
-            if (document.getElementById("stayLogged").checked == true) {
-                localStorage.setItem('user', username); // Stores the logged user in the local storage, which does not get cleared when the browser is closed
-            }
-            else {
-                sessionStorage.setItem('user', username); // Stores the logged user in the session storage, which gets cleared when the browser is closed
-            }
-
-            location = 'home.html';
-            return false;
-        }
-
-    }
-
-    alert('Invalid login credentials. Try again!');
-    
-}
-
-
 
 function isUserLoggedIn() {
     if (sessionStorage.getItem('user') != null) { //If we find any user in the session storage, we set the logged in user to that one
@@ -47,36 +19,50 @@ function isUserLoggedIn() {
         return true;
     }
     else { //Otherwise, we could not detect a logged in user
-        return false; 
+        return false;
     }
 }
 
-function logout() { //We empty the logged in user from the both local and session storages, then we force a page refresh
-    sessionStorage.removeItem('user');
-    localStorage.removeItem('user'); 
-    window.location.reload(false);
-}
+
 
 function initializeDb() {
-    localMessagesDatabase = JSON.parse(localStorage.getItem('localMessagesDatabase'));
-    localUsersDatabase = JSON.parse(localStorage.getItem('localUsersDatabase'));
+    var localMessagesDatabase = JSON.parse(localStorage.getItem('localMessagesDatabase'));
+    var localUsersDatabase = JSON.parse(localStorage.getItem('localUsersDatabase'));
 
     if (localUsersDatabase == null) {
-        localUsersDatabase = [];
-        joinedUsersDatabase = usersDatabase;
+        console.log('No local users database has been found. Default hardcoded one will be used.');
     }
-    else {
-        joinedUsersDatabase = usersDatabase.concat(localUsersDatabase);
-    }   
+    else { /*Local storage saves class instances as plain objects. To use methods of the class "User" on our users database,
+            we need to parse each user object into an instance of the class User.
+            We go from:
+            'usersDatabase = [  {username: 'username1', password: 'password1', ...},
+                                {username: 'username2', password: 'password2', ...}
+                             ];'
+            To:
+            'usersDatabase = [  new User('username1', 'password1', ...), 
+                                new User('username2', 'password2', ...)
+                             ];'
+            */
+        for (var i = 0; i < localUsersDatabase.length; i++) {
+            localUsersDatabase[i] = new UserBeta(localUsersDatabase[i].username, localUsersDatabase[i].id, localUsersDatabase[i].email, localUsersDatabase[i].password, localUsersDatabase[i].firstName, localUsersDatabase[i].lastName, localUsersDatabase[i].sex, localUsersDatabase[i].birthDate, localUsersDatabase[i].registerDate, localUsersDatabase[i].managerOf, localUsersDatabase[i].employeeOf);
+        }
+        // After we have parsed the localUsersDatabase correctly, 
+        // we assign it to the usersDatabase variable, overwriting the default one
+        usersDatabase = localUsersDatabase;
+        console.log('Local users database has been found. Default one will be overwritten.');
+    }
 
     if (localMessagesDatabase == null) {
-        localMessagesDatabase = [];
-        joinedMessagesDatabase = messagesDatabase;
+        console.log('No messages users database has been found. Default hardcoded one will be used.');
     }
-    else {
-        joinedMessagesDatabase = messagesDatabase.concat(localMessagesDatabase);
-    }   
-    db = new Database();
+    else { // We parse Local Storage array of objects as an array of instances of the class Message
+        for (var i = 0; i < localMessagesDatabase.length; i++) {
+            localMessagesDatabase[i] = new Message(localMessagesDatabase[i].id, localMessagesDatabase[i].senderId, localMessagesDatabase[i].recipientsId, localMessagesDatabase[i].text, localMessagesDatabase[i].locationId, localMessagesDatabase[i].date, localMessagesDatabase[i].seenBy);
+        }
+        messagesDatabase = localMessagesDatabase;
+        console.log('Local messages database has been found. Default one will be overwritten.');
+    }
+
 }
 
 
@@ -89,16 +75,17 @@ function verifySession() {
         document.getElementById('signup-nav').style.display = 'none';
 
         currentUser = new User(loggedUser); //We set the currentUser to the logged in user
+
         newNotifications = currentUser.getNotifications(); // We check if the user has new notifications
         if (newNotifications > 0) { //If yes, we display them in the HTML element
             document.getElementById('notifications-counter').innerHTML = newNotifications;
             document.getElementById('notifications-counter').style.display = 'block';
         }
-        else { //If no, we hide the the HTML element
+        else { //If not, we hide the the HTML element
             document.getElementById('notifications-counter').innerHTML = '';
             document.getElementById('notifications-counter').style.display = 'none';
         }
-    
+
     }
     else { // If the user is not logged in, we display the "visitor" version of the menu
         document.getElementById('profile-nav').style.display = 'none';
@@ -111,10 +98,11 @@ function verifySession() {
 
 document.addEventListener('DOMContentLoaded', function () { //This function is fired upon page load
     console.log('Page has been loaded');
-    verifySession();
     initializeDb();
-    toggleNotificationsDisplayTrigger = document.getElementById("notifications-trigger");
- });
+    verifySession();
+    notificationsButton = document.getElementById("notifications-trigger");
+
+});
 
 
 /*-------------------------------------------------------------------------------
@@ -122,16 +110,35 @@ document.addEventListener('DOMContentLoaded', function () { //This function is f
 -------------------------------------------------------------------------------*/
 
 function showNotifications() {
+    var seenMessagesToDisplay = currentUser.getSeenMessages();
+    var unseenMessagesToDisplay = currentUser.getUnseenMessages();
+    console.log(unseenMessagesToDisplay);
+
+    document.getElementById("listed-notifications-unseen").innerHTML = '';
+    document.getElementById("listed-notifications-seen").innerHTML = '';
+
+    unseenMessagesToDisplay.forEach(function (message) {
+        var sender = getValueFromDb('firstName', usersDatabase, 'id', message.senderId);
+        var htmlMessage = `<li class="listed-notification unseen"><p><b>${sender}</b> sent you a message: '<i>${message.text}</i></p></li>`;
+        document.getElementById("listed-notifications-unseen").insertAdjacentHTML('afterbegin', htmlMessage);
+
+        messagesDatabase.forEach(function (dbMessage) {
+            if (message.id == dbMessage.id) {
+                dbMessage.setToSeenBy(currentUser.id);
+            }
+        });
+    });
+    saveMessagesLocally();
+
+    seenMessagesToDisplay.forEach(function (message) {
+        var sender = getValueFromDb('firstName', usersDatabase, 'id', message.senderId);
+        var htmlMessage = `<li class="listed-notification seen"><p><b>${sender}</b> sent you a message: '<i>${message.text}</i></p></li>`;
+        document.getElementById("listed-notifications-seen").insertAdjacentHTML('afterbegin', htmlMessage);
+    })
+
     document.getElementById('notifications-panel').classList.remove("hidden");
     document.getElementById('notifications-counter').style.display = 'none';
 
-    document.getElementById("listed-notifications").innerHTML = '';
-    var messagesToDisplay = currentUser.getUnseenMessages();
-    messagesToDisplay.forEach(function (message) {
-        var sender = getValueFromDb('name', usersDatabase, 'id', message.senderId);
-        var htmlMessage = `<li class="listed-notification unseen"><p><b>${sender}</b> sent you a message: '<i>${message.text}</i></p></li>`;
-        document.getElementById("listed-notifications").insertAdjacentHTML('afterbegin', htmlMessage);
-    })
 }
 
 function hideNotifications() {
@@ -139,75 +146,35 @@ function hideNotifications() {
 }
 
 document.addEventListener('click', function (event) { //This function gets fired  every time the user clicks anywhere on a page
- 
-    var isClickInside = toggleNotificationsDisplayTrigger.contains(event.target);
+
+    var clickedOnNotifications = notificationsButton.contains(event.target);
+
 
     if (document.getElementById("notifications-panel").contains(event.target)) { //If the user clicks inside the notifications pop up we do nothing
         return;
     }
 
-    if (isClickInside) { // If the user clicks on the notification menu item, then -> we hide the notification pop up
-        if (notificationsBoxOpen) { //We hide the notifications pop up if it was open
-            hideNotifications();
-            notificationsBoxOpen = false;
+
+    if (clickedOnNotifications) { // If the user clicks on the notification menu item, then -> we hide the notification pop up
+        if (notificationsBoxHidden) { //We hide the notifications pop up if it was open
+            showNotifications();
+            notificationsBoxHidden = true;
         }
         else {                  //We show the notifications pop up if it was not open
-            showNotifications();
-            notificationsBoxOpen = true;
+            writeToLocalStorage();
+            hideNotifications();
+            notificationsBoxHidden = false;
         }
 
     } else { //If the user has click anywhere else on the page rather than the previous two cases, we hide the notifications pop up
         hideNotifications();
-        notificationsBoxOpen = false;
+        notificationsBoxHidden = true;
     }
+
 });
 
 
 
 
-/*-------------------------------------------------------------------------------
-// Jobs page
--------------------------------------------------------------------------------*/
-var jobDisplayOptions = {
-    date: "latest", //latest(default), oldest
-    type: "All", //Any(default), Full-Time, Part-Time
-};
-
-function openJobModal(jobId, employerId, locationId, title, description, address, streetNumber, zip) {
-    document.getElementById('modal-job-title').innerHTML = title;
-    document.getElementById('modal-description').innerHTML = description;
-    document.getElementById('gmap_canvas').src = 'https://maps.google.com/maps?q=' + address + '%20' + streetNumber + '%20' + zip + '&t=&z=13&ie=UTF8&iwloc=&output=embed';
-    if (isUserLoggedIn()) { //If the visitor is a logged in user ->
-        document.getElementById('modal-apply').style.display = 'inline-block'; //We show the "Apply now" button in the jobs modal
-        document.getElementById('modal-login-redirect').style.display = 'none'; //We show the "Apply now" button in the jobs modal
-
-        document.getElementById('modal-apply').onclick = function () {
-            currentUser.applyForJob(jobId, employerId, locationId);
-        }
-
-    }
-    else { //Otherwise, if the visitors is not logged in, we do the opposite
-        document.getElementById('modal-apply').style.display = 'none';
-        document.getElementById('modal-login-redirect').style.display = 'inline-block';
-    }
-
-    document.body.classList.add('modal-open');
-    document.getElementById('jobs-modal').style.display = 'block';
-}
-
-function closeJobModal() {
-    document.getElementById('jobs-modal').style.display = 'none';
-    document.body.classList.remove('modal-open');
-    document.getElementById('job-modal-main').style.display = 'block';
-    document.getElementById('job-modal-success').style.display = 'none';
-
-}
 
 
-
-
-
-
-
-
-    

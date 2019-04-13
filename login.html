@@ -6,51 +6,17 @@
     <title>Login</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link href="./css/style.css" rel="stylesheet">
-    <script src="./js/functions.js"></script>
+    <script src="./js/classes.js"></script>
     <script src="./js/db.js"></script>
-
- 
-    <script>
-        function isUserLoggedIn() {
-            if (sessionStorage.getItem('user') !== null) {
-                loggedUser = sessionStorage.getItem('user');
-                return true;
-            }
-            else if (localStorage.getItem('user') !== null) {
-                loggedUser = localStorage.getItem('user');
-            }
-            else {
-                return false;
-            }
-        }
-
-
-        function verifySession() {
-            if (isUserLoggedIn()) {
-                document.getElementById('profile-nav').style.display = 'block';
-                document.getElementById('login-nav').style.display = 'none';
-                console.log(`Currently logged in as: ${loggedUser}`);
-                console.log('Local storage: ' + localStorage.getItem('user'));
-            }
-            else {
-                document.getElementById('profile-nav').style.display = 'none';
-                document.getElementById('login-nav').style.display = 'block';
-
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            //alert("Page has been loaded");
-            verifySession();
-
-        });
-    </script>
+    <script src="./js/functions.js"></script>
+    <script src="./js/login.js"></script>
 </head>
 
 
 
 <body>
     <div class="header">
+        <!--Menu HTML-->
         <div class="nav-bar-wrapper">
             <ul class="nav-bar nav-left">
                 <li class="nav-bar-item">
@@ -62,8 +28,22 @@
                 <li class="nav-bar-item active">
                     <a href="jobs.html">Jobs</a>
                 </li>
-                <li class="nav-bar-item">
-                    <a href="">Notifications</a>
+                <li class="nav-bar-item" id="notifications-trigger">
+                    <a>
+                        Notifications
+                        <div class="notifications-nav">
+                            <span class="notifications-label" id="notifications-counter" style=""></span>
+                        </div>
+                    </a>
+
+                    <div class="notifications-modal hidden" id="notifications-panel">
+                        <h3>New</h3>
+                        <ul id="listed-notifications-unseen"></ul>
+                        <h3>Recent</h3>
+                        <ul id="listed-notifications-seen">
+                            <li class="listed-notification seen"></li>
+                        </ul>
+                    </div>
                 </li>
 
             </ul>
@@ -71,12 +51,19 @@
                 <li class="nav-bar-item" id="profile-nav">
                     <a href="profile.html">Profile</a>
                 </li>
+                <li class="nav-bar-item" id="logout-nav">
+                    <a href="" onclick="currentUser.logout();">Log Out</a>
+                </li>
                 <li class="nav-bar-item" id="login-nav">
                     <a href="login.html">Login</a>
                 </li>
+                <li class="nav-bar-item" id="signup-nav">
+                    <a href="signup.html">Sign Up</a>
+                </li>
             </ul>
         </div>
-        <div class="header-wall"><!--<img src="./resources/images/header.jpg" style="width:100%;"/>--></div>
+
+        <!--Menu HTML end-->
     </div>
 
     <div class="main">

@@ -6,143 +6,10 @@
     <title></title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link href="./css/style.css" rel="stylesheet">
+    <script src="./js/classes.js"></script>
     <script src="./js/db.js"></script>
     <script src="./js/functions.js"></script>
-
-    <script>
-
-        var jobs = '';
-        var jobsLocationsJoin = jobsDatabase;
-        document.addEventListener('DOMContentLoaded', function () {//Once the jobs page has been loaded
-            console.log('Original jobsDB:' + jobsDatabase);
-            var correspondingLocation = '';
-            jobsLocationsJoin.forEach(function (singleJob) { //We loop through each object in the jobsArray Database
-                var jobIdCache = singleJob.id; //We store the jobId temporarily
-                var locationIdCache = singleJob.locationId;
-                console.log('Job is:' + singleJob + ' location id:' + singleJob.locationId);
-                correspondingLocation = db.getLocation(singleJob.locationId); //For each job listing, we get the corresponding location details
-
-                //var locationIdCache = correspondingLocation.id;
-                Object.assign(singleJob, correspondingLocation); //We join the job object to the corresponding location object
-                singleJob.id = jobIdCache; //Since the previous method overwrites properties with the same key, we make sure the location.id does not overwrite the job.id
-                singleJob.locationId = locationIdCache;
-            });
-            jobs = jobsLocationsJoin; //We assign jobs the array with the concatenated jobs,locations database
-        });
-
-        function populateJobsList() {
-            jobs.forEach(function (dbJob) {
-                console.log(jobDisplayOptions.type + " " + dbJob.type);
-
-                if (jobDisplayOptions.type == 'All') {
-                    console.log("Display selction is:" + jobDisplayOptions.type);
-                    appendToJobListing(dbJob);
-                }
-                else if (jobDisplayOptions.type == dbJob.type) {
-                    console.log("Display selction is:" + jobDisplayOptions.type + "and listed job type is: " + dbJob.type)
-                    appendToJobListing(dbJob);
-                }
-            });
-        }
-
-        function appendToJobListing(jobToAppend) {
-            console.log(jobToAppend);
-            var dateDisplayptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            announcementDate = new Date(jobToAppend.creationDate).toLocaleDateString("en-US", dateDisplayptions);
-            var startingDate = new Date(jobToAppend.startingDate);
-            var now = new Date();
-
-            if (startingDate.getTime() < now.getTime()) {
-                startingDate = 'As soon as possible';
-            }
-            else {
-                startingDate = startingDate.toLocaleDateString("en-US", dateDisplayptions);
-            }
-
-
-
-            var employerId = jobToAppend.managedBy;// getValueFromDb('managedBy', 'locationsDatabase', 'id', locationId);
-            var positionText = 1;
-            if (jobToAppend.position == 0) {
-
-            }
-
-
-            htmlJob = `<div class="job-listing-wrapper" data-job-type="${jobToAppend.type}">` +
-                `<h2 class="job-listing-header" >${jobToAppend.locationName}</h2 >` +
-                `<p class="job-listing-info">${jobToAppend.position}, ${jobToAppend.type}.</p>` +
-                `<p class="job-listing-date">Posted on: ${announcementDate}.</p>` +
-                `<p class="job-listing-start" >Job start: ${startingDate}.</p >` +
-                `<button onclick="openJobModal('${jobToAppend.id}','${employerId}','${jobToAppend.locationId}','${jobToAppend.position} wanted at ${jobToAppend.locationName}', '${jobToAppend.fullDescription}', '${jobToAppend.address}', '${jobToAppend.streetNumber}', '${jobToAppend.zip}');">View more</button></div >`;
-            document.getElementById("job-list-container").insertAdjacentHTML('afterbegin', htmlJob);
-
-
-        }
-
-        function clearJobList() {
-            document.getElementById('job-list-container').innerHTML = "";
-        }
-
-        function sortJobsAsc() {
-            document.getElementById('active-sorting-date').innerHTML = 'Oldest first';
-            jobsDatabase.sort(function (a, b) {
-                // Turn your strings into dates, and then subtract them
-                // to get a value that is either negative, positive, or zero.
-                return new Date(b.creationDate) - new Date(a.creationDate);
-            });
-            console.log(jobsDatabase);
-            clearJobList();
-            populateJobsList();
-        }
-
-        function sortJobsDesc() {
-            document.getElementById('active-sorting-date').innerHTML = 'Latest first';
-            jobsDatabase.sort(function (a, b) {
-                // Turn your strings into dates, and then subtract them
-                // to get a value that is either negative, positive, or zero.
-                return new Date(a.creationDate) - new Date(b.creationDate);
-            });
-            console.log(jobsDatabase);
-            clearJobList();
-            populateJobsList();
-        }
-
-        function hideJobs() {
-            document.getElementById('job-list-container').innerHTML = '';
-        }
-
-
-        function showFullTimeOnly() {
-            document.getElementById('active-sorting-job-type').innerHTML = 'Full-Time';
-            hideJobs();
-
-            jobDisplayOptions.type = 'Full-Time';
-            populateJobsList();
-        }
-
-
-        function showPartTimeOnly() {
-            document.getElementById('active-sorting-job-type').innerHTML = 'Part-Time';
-            hideJobs();
-            jobDisplayOptions.type = 'Part-Time';
-            populateJobsList();
-        }
-
-        function showAnyJobType() {
-            document.getElementById('active-sorting-job-type').innerHTML = 'All';
-            hideJobs();
-            jobDisplayOptions.type = 'All';
-            populateJobsList();
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            //alert("Page has been loaded");
-            sortJobsDesc();
-        });
-
-
-    </script>
-
+    <script src="./js/jobs.js"></script>
 </head>
 
 
@@ -170,13 +37,13 @@
 
                     <div class="notifications-modal hidden" id="notifications-panel">
                         <h3>New</h3>
-                        <ul id="listed-notifications">
+                        <ul id="listed-notifications-unseen">
 
                         </ul>
-                        <!--<h3>Read</h3>
-                        <ul>
+                        <h3>Recent</h3>
+                        <ul id="listed-notifications-seen">
                             <li class="listed-notification seen"></li>
-                        </ul>-->
+                        </ul>
                     </div>
                 </li>
 
@@ -184,15 +51,21 @@
             <ul class="nav-bar nav-right">
                 <li class="nav-bar-item" id="profile-nav">
                     <a href="profile.html">Profile</a>
+
+                    <div class="profile-modal hidden" id="profile-panel">
+                        <h3>Info:</h3>
+                        <p>username</p>
+                        <p>Managed locations:</p>
+                    </div>
                 </li>
                 <li class="nav-bar-item" id="logout-nav">
-                    <a href="" onclick="logout();">Log Out</a>
+                    <a href="" onclick="currentUser.logout();">Log Out</a>
                 </li>
                 <li class="nav-bar-item" id="login-nav">
                     <a href="login.html">Login</a>
                 </li>
                 <li class="nav-bar-item" id="signup-nav">
-                    <a href="sign-up.html">Sign Up</a>
+                    <a href="signup.html">Sign Up</a>
                 </li>
             </ul>
         </div>
