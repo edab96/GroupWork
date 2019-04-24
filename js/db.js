@@ -21,9 +21,9 @@ var locationsDatabase = [
 ];
 
 var jobsDatabase = [
-    new Job(1, 2, 'Bartender', 'Full-Time', 'Fri Mar 01 2019 16:21:12 GMT+0100', 'Wed Aug 21 2019 20:30:12 GMT+0100', 'We are looking for... '),
-    new Job(2, 3, 'Cook', 'Part-Time', 'Thu Mar 07 2019 10:21:12 GMT+0100', 'Tue Apr 02 2019 20:30:12 GMT+0100', 'We are looking for... '),
-    new Job(3, 1, 'Cook', 'Part-Time', 'Thu Mar 14 2019 10:21:12 GMT+0100', '0', 'We are looking for... '),
+    new Job(1, 2, 'Bartender', 'Full-Time', 140, 'Fri Mar 01 2019 16:21:12 GMT+0100', 'Wed Aug 21 2019 20:30:12 GMT+0100', 'We are looking for... '),
+    new Job(2, 3, 'Cook', 'Part-Time', 150, 'Thu Mar 07 2019 10:21:12 GMT+0100', 'Tue Apr 02 2019 20:30:12 GMT+0100', 'We are looking for... '),
+    new Job(3, 1, 'Cook', 'Part-Time', 150, 'Thu Mar 14 2019 10:21:12 GMT+0100', '0', 'We are looking for... '),
 ];
 
 var messagesDatabase = [

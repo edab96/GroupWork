@@ -92,6 +92,7 @@ function verifySession() {
         document.getElementById('logout-nav').style.display = 'none';
         document.getElementById('login-nav').style.display = 'inline-block';
         document.getElementById('signup-nav').style.display = 'inline-block';
+        document.getElementById('notifications-trigger').style.display = 'none';
 
     }
 }
@@ -110,8 +111,13 @@ document.addEventListener('DOMContentLoaded', function () { //This function is f
 -------------------------------------------------------------------------------*/
 
 function showNotifications() {
-    var seenMessagesToDisplay = currentUser.getSeenMessages();
-    var unseenMessagesToDisplay = currentUser.getUnseenMessages();
+    var seenMessagesToDisplay;
+    var unseenMessagesToDisplay;
+
+    if (isUserLoggedIn) {
+    seenMessagesToDisplay = currentUser.getSeenMessages();
+    unseenMessagesToDisplay = currentUser.getUnseenMessages();
+    }
     console.log(unseenMessagesToDisplay);
 
     document.getElementById("listed-notifications-unseen").innerHTML = '';

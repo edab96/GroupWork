@@ -99,11 +99,11 @@ class User {
         else if (Array.isArray(recipientsIds)) { //If there are multiple recipients (e.g. recipientIds = [1,2])
             recipients = recipientsIds;
         }
-        var authorId = this.id;
+        var senderId = this.id;
         var messageDate = new Date();
         var messageId = getLatestDbId(messagesDatabase) + 1;
 
-        messagesDatabase.push(new Message(messageId, authorId, recipients, text, locationId, messageDate, []));
+        messagesDatabase.push(new Message(messageId, senderId, recipients, text, locationId, messageDate, []));
         saveMessagesLocally();
     }
 
@@ -115,7 +115,7 @@ class User {
         var employer = getLocationManager(locationId);
         var employerName = employer.firstName + ' ' + employer.lastName;
 
-        this.sendMessage([employer.id], `Hello ${employerName}, I would like to apply as a ${jobPosition} at ${locationName}.`, locationId);
+        this.sendMessage([employer.id], `Hello ${employerName}, I would like to apply as a ${jobPosition} at '${locationName}'.`, locationId);
         console.log(`Succesfully applied at ${locationName}`);
         document.getElementById('job-modal-main').style.display = 'none';
         document.getElementById('job-modal-success').style.display = 'block';
@@ -156,11 +156,12 @@ class Location {
 }
 
 class Job {
-    constructor(id, locationId, position, type, creationDate, startingDate, fullDescription) {
+    constructor(id, locationId, position, type, hourlyWage, creationDate, startingDate, fullDescription) {
         this.id = id;
         this.locationId = locationId;
         this.position = position;
         this.type = type;
+        this.hourlyWage = hourlyWage;
         this.creationDate = creationDate;
         this.startingDate = startingDate;
         this.fullDescription = fullDescription;

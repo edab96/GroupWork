@@ -57,6 +57,7 @@ function appendToJobListing(listingToAppend) {
         `<p class="job-listing-date">Posted on: ${announcementDate}.</p>` +
         `<h2 class="job-listing-header" >${listingToAppend.location.locationName}</h2 >` +
         `<p class="job-listing-info">${listingToAppend.job.position}, ${listingToAppend.job.type}.</p>` +
+        `<p class="job-listing-info">Hourly wage: ${listingToAppend.job.hourlyWage} DKK.</p>` +
         `<p class="job-listing-start" >Job start: ${startingDate}.</p >` +
         `<button style="width:100%;" onclick='openJobModal(${JSON.stringify(listingToAppend)});'>View more</button></div >`;
     document.getElementById("job-list-container").insertAdjacentHTML('afterbegin', htmlJob);
